@@ -18,6 +18,7 @@
   },
   "homepage": "https://github.com/PythonFabi/my-employee-tracker#readme",
   "dependencies": {
+    "inquirer": "^9.2.7",
     "mysql2": "^3.5.0"
   }
 }
