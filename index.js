@@ -9,3 +9,12 @@ const question = {
 }
 
 
+switch (this.choices) {
+    case 'View all Employees':
+}
+
+ 
+
+// invoke inquirer in each choice
+inquirer
+.prompt
