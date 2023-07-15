@@ -31,85 +31,6 @@ function viewAllEmployees() {
         });
 }
 
-function viewAllRoles() {
-    db.query('SELECT r.id, r.title, d.name AS department, r.salary FROM department d JOIN role r ON d.id = r.department_id',
-        function (err, results) {
-            if (err) {
-                console.log(err);
-            }
-            console.log(results);
-            employeeManager()
-        });
-}
-
-function viewAllDepartments() {
-    db.query('SELECT * FROM department', function (err, results) {
-        if (err) {
-            console.log(err);
-        }
-        console.log(results);
-        employeeManager();
-    });
-}
-
-function addDepartment() {
-    inquirer.prompt({
-        type: 'input',
-        message: 'What is the name of the department?',
-        name: 'departmentName'
-    }).then((answers) => {
-        const newDepartment = answers.departmentName;
-        db.query(`INSERT INTO department (name) VALUES ('${newDepartment}')`, function (err, results) {
-            if (err) {
-                console.log(err);
-            } else {
-                console.log(`Added ${newDepartment} to the database`);
-            }
-            employeeManager();
-        });
-    });
-}
-
-
-function addRole() {
-    db.query('SELECT name FROM department', function (err, results) {
-        if (err) {
-            console.log(err);
-            return;
-        }
-
-        const departmentChoices = results.map((row) => row.name);
-
-        inquirer.prompt([{
-            type: 'input',
-            message: 'What is the name of the role?',
-            name: 'roleName'
-        }, {
-            type: 'input',
-            message: 'What is the salary of the role?',
-            name: 'salary'
-        }, {
-            type: 'list',
-            message: 'Which department does the role belong to?',
-            name: 'departmentChoice',
-            choices: departmentChoices
-        }])
-            .then((answers) => {
-                const roleName = answers.roleName;
-                const salary = answers.salary;
-                const department = answers.departmentChoice;
-
-                db.query(`INSERT INTO role (title, salary, department) VALUES ('${roleName}', '${salary}',(SELECT id FROM department WHERE name = '${department}'))`, function (err, results) {
-                    if (err) {
-                        console.log(err);
-                    } else {
-                        console.log(`Added ${roleName} to the database`);
-                    } employeeManager();
-                })
-            });
-    });
-}
-
 function addEmployee() {
     db.query('SELECT title FROM role', function (err, roleResults) {
         if (err) {
@@ -184,6 +105,93 @@ function addEmployee() {
     });
 
 }
+
+function updateEmployeeRole() {
+    
+
+}
+function viewAllRoles() {
+    db.query('SELECT r.id, r.title, d.name AS department, r.salary FROM department d JOIN role r ON d.id = r.department_id',
+        function (err, results) {
+            if (err) {
+                console.log(err);
+            }
+            console.log(results);
+            employeeManager()
+        });
+}
+
+
+function addRole() {
+    db.query('SELECT name FROM department', function (err, results) {
+        if (err) {
+            console.log(err);
+            return;
+        }
+
+        const departmentChoices = results.map((row) => row.name);
+
+        inquirer.prompt([{
+            type: 'input',
+            message: 'What is the name of the role?',
+            name: 'roleName'
+        }, {
+            type: 'input',
+            message: 'What is the salary of the role?',
+            name: 'salary'
+        }, {
+            type: 'list',
+            message: 'Which department does the role belong to?',
+            name: 'departmentChoice',
+            choices: departmentChoices
+        }])
+            .then((answers) => {
+                const roleName = answers.roleName;
+                const salary = answers.salary;
+                const department = answers.departmentChoice;
+
+                db.query(`INSERT INTO role (title, salary, department) VALUES ('${roleName}', '${salary}',(SELECT id FROM department WHERE name = '${department}'))`, function (err, results) {
+                    if (err) {
+                        console.log(err);
+                    } else {
+                        console.log(`Added ${roleName} to the database`);
+                    } employeeManager();
+                })
+            });
+    });
+}
+
+function viewAllDepartments() {
+    db.query('SELECT * FROM department', function (err, results) {
+        if (err) {
+            console.log(err);
+        }
+        console.log(results);
+        employeeManager();
+    });
+}
+
+function addDepartment() {
+    inquirer.prompt({
+        type: 'input',
+        message: 'What is the name of the department?',
+        name: 'departmentName'
+    }).then((answers) => {
+        const newDepartment = answers.departmentName;
+        db.query(`INSERT INTO department (name) VALUES ('${newDepartment}')`, function (err, results) {
+            if (err) {
+                console.log(err);
+            } else {
+                console.log(`Added ${newDepartment} to the database`);
+            }
+            employeeManager();
+        });
+    });
+}
+
+
+
+
 
 function employeeManager() {
     inquirer.prompt(question)
