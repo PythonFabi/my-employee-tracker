@@ -1,9 +1,11 @@
+-- drop database company_db and create new one, then use the database as current one
 DROP DATABASE IF EXISTS company_db;
 
 CREATE DATABASE company_db;
 
 USE company_db;
 
+-- create tables department, role and employee and link them together with primary and foreign keys
 CREATE TABLE department (
     id INT NOT NULL AUTO_INCREMENT PRIMARY KEY,
     name VARCHAR(30) NOT NULL

@@ -1,3 +1,4 @@
+-- insert values into department, role and employee table
 INSERT INTO department (name)
 VALUES ('Sales'),
        ('Engineering'),
