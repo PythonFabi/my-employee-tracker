@@ -1,5 +1,5 @@
 const inquirer = require('inquirer');
-const mysql = require('mysql');
+const mysql = require('mysql2');
 
 
 
@@ -21,12 +21,12 @@ const question = {
 
 
 function viewAllEmployees() {
-    db.query("SELECT e.id, e.first_name, r.title, d.name AS department, r.salary, CONCAT(m.first_name, ' ',m.last_name) AS manager FROM employee e JOIN role r ON e.role_id = r.id JOIN department d ON r.department_id = d.id LEFT JOIN employee m ON e.manager_id = m.id",
+    db.query("SELECT e.id, e.first_name, e.last_name, r.title, d.name AS department, r.salary, CONCAT(m.first_name, ' ',m.last_name) AS manager FROM employee e JOIN role r ON e.role_id = r.id JOIN department d ON r.department_id = d.id LEFT JOIN employee m ON e.manager_id = m.id",
         function (err, results) {
             if (err) {
                 console.log(err);
             }
-            console.log(results);
+            console.table(results);
             employeeManager();
         });
 }
@@ -38,7 +38,7 @@ function addEmployee() {
             return;
         }
 
-        const roleTitles = roleResults.map((row) => row.name);
+        const roleTitles = roleResults.map((row) => row.title);
 
         db.query('SELECT CONCAT(first_name, " ", last_name) AS managerName FROM employee', function (err, managerResults) {
             if (err) {
@@ -164,7 +164,7 @@ function viewAllRoles() {
             if (err) {
                 console.log(err);
             }
-            console.log(results);
+            console.table(results);
             employeeManager()
         });
 }
@@ -215,7 +215,7 @@ function viewAllDepartments() {
         if (err) {
             console.log(err);
         }
-        console.log(results);
+        console.table(results);
         employeeManager();
     });
 }
@@ -268,6 +268,8 @@ function employeeManager() {
                     addDepartment();
                     break;
                 case 'Quit':
+                    console.log('Exiting the employee manager...see you next time!');
+                    process.exit();
                     break;
             }
         });
