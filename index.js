@@ -16,7 +16,7 @@ const question = {
     type: 'list',
     message: 'What would you like to do?',
     name: 'action',
-    choices: ['View all Employees', 'Add Employee', 'Update Employee Role', 'View All Roles', 'Add Role', 'View All Departments', 'Add Department', 'Update Manager of Employee', 'View Employees by Manager', 'View Employees by Department', 'Quit']
+    choices: ['View all Employees', 'Add Employee', 'Update Employee Role', 'View All Roles', 'Add Role', 'View All Departments', 'Add Department', 'Update Manager of Employee', 'View Employees by Manager', 'View Employees by Department', 'Delete Department', 'Delete Role', 'Delete Employee', 'View total budget of department', 'Quit']
 }
 
 
@@ -363,6 +363,155 @@ function viewEmployeesByDepartment() {
     });
 }
 
+function deleteDepartment() {
+    db.query('SELECT * FROM department', function (err, departmentResults) {
+        if(err) {
+            console.log(err);
+            return;
+        }
+
+        const departmentChoices = departmentResults.map((row) => {
+            return {
+                name:row.name,
+                value: row.id
+            };
+        });
+
+        inquirer.prompt([
+            {
+                type: 'list',
+                message: "Which department would you like to delete?",
+                name: 'selectedDepartment',
+                choices: departmentChoices
+            }
+        ])
+          .then((answers) => {
+            const selectedDepartmentId = answers.selectedDepartment;
+
+            db.query(`DELETE FROM department WHERE id = ${selectedDepartmentId}`, function (err, deleteResult) {
+                if (err) {
+                    console.log(err);
+                } else {
+                    console.log("Department removed from the database");
+                }
+                employeeManager();
+            });
+          });
+    });
+}
+
+function deleteRole() {
+    db.query('SELECT * FROM role', function (err, roleResults) {
+        if (err) {
+            console.log(err);
+            return;
+        }
+
+        const roleChoices = roleResults.map((row) => {
+            return {
+                name: row.title,
+                value: row.id
+            };
+        });
+
+        inquirer.prompt([
+            {
+                type: 'list',
+                message: 'Which role would you like to delete?',
+                name: 'selectedRole',
+                choices: roleChoices
+            }
+        ])
+          .then((answers) => {
+            const selectedRoleId = answers.selectedRole;
+
+            db.query(`DELETE FROM role WHERE id = ${selectedRoleId}`, function (err, deleteResult) {
+                if (err) {
+                    console.log(err);
+                } else {
+                    console.log("Role removed from the database");
+                }
+                employeeManager();
+            });
+          });
+    });
+
+}
+
+function deleteEmployee() {
+    db.query('SELECT id, CONCAT(first_name, " ", last_name) AS employeeName FROM employee', function (err, employeeResults) {
+        if (err) {
+            console.log(err);
+            return;
+        }
+
+        const employeeChoices = employeeResults.map((row) => {
+            return {
+                name: row.employeeName,
+                value: row.id
+            };
+        });
+
+        inquirer.prompt([
+            {
+                type: 'list',
+                message: 'Which employee would you like to delete?',
+                name: 'selectedEmployee', 
+                choices: employeeChoices
+            }
+        ])
+          .then((answers) => {
+            const selectedEmployeeId = answers.selectedEmployee;
+
+            db.query(`DELETE FROM employee WHERE id = ${selectedEmployeeId}`, function (err, deleteResult) {
+                if (err) {
+                    console.log(err);
+                } else {
+                    console.log('Employee removed from the database');
+                }
+                employeeManager();
+            });
+          });
+    });
+}
+
+function calculateTotalBudget() {
+    db.query('SELECT * FROM department', function (err, departmentResults) {
+        if (err) {
+            console.log(err);
+            return;
+        }
+
+        const departmentChoices = departmentResults.map((row) => {
+            return {
+                name: row.name,
+                value: row.id
+            };
+        });
+
+        inquirer.prompt([
+            {
+                type: 'list',
+                message: 'Which department would you like to calculate its total budget from?',
+                name: 'selectedDepartment', 
+                choices: departmentChoices
+            }
+        ])
+          .then((answers) => {
+            const selectedDepartmentId = answers.selectedDepartment;
+
+            db.query(`SELECT SUM(r.salary) AS totalBudget FROM employee e JOIN role r ON e.role_id = r.id JOIN department d ON r.department_id = d.id WHERE d.id = ${selectedDepartmentId}`, function (err, results) {
+                if (err) {
+                    console.log(err);
+                }
+                console.log(`The toatl budget of the department: $${results[0].totalBudget}`);
+                employeeManager();
+            });
+          });
+    });
+}
+
+
 function employeeManager() {
     inquirer.prompt(question)
         .then((answers) => {
@@ -396,6 +545,18 @@ function employeeManager() {
                     break;
                 case 'View Employees by Department':
                     viewEmployeesByDepartment();
+                    break;
+                case 'Delete Department':
+                    deleteDepartment();
+                    break;
+                case 'Delete Role':
+                    deleteRole();
+                    break;
+                case 'Delete Employee':
+                    deleteEmployee();
+                    break;
+                case 'View total budget of department':
+                    calculateTotalBudget();
                     break;
                 case 'Quit':
                     console.log('Exiting the employee manager...see you next time!');
