@@ -108,7 +108,7 @@ function addEmployee() {
 
 function updateEmployeeRole() {
     db.query('SELECT id, CONCAT(first_name, " ", last_name) AS employeeName FROM employee', function (err, employeeResults) {
-        if(err) {
+        if (err) {
             console.log(err);
             return;
         }
@@ -120,40 +120,49 @@ function updateEmployeeRole() {
             };
         });
 
-        inquirer.prompt([
-            {
-                type: 'list',
-                message: 'Select an employee to update their role:',
-                name: 'selectedEmployee', 
-                choices: employeeChoices
-            },
-            {
-                type: 'input',
-                message: 'Enter the new role title:',
-                name: 'newRoleTitle'
+        db.query('SELECT id, title FROM role', function (err, roleResults) {
+            if (err) {
+                console.log(err);
+                return;
             }
-        ])
-        .then((answers) => {
-            const selectedEmployeeId = answers.selectedEmployee;
-            const newRoleTitle = answers.newRoleTitle;
 
-            db.query(`SELECT id FROM role WHERE title = '${newRoleTitle}'`, function (err, roleResult) {
-                if (err) {
-                    console.log(err);
-                    return;
-                }
-
-                const newRoleId = roleResult[0].id;
-
-                db.query(`UPDATE employee SET role_id = ${newRoleId} WHERE id = ${selectedEmployeeId}`, function (err, updateResult) {
-                    if (err) {
-                        console.log(err);
-                    } else {
-                        console.log('Employee role updated successfully');
-                    }
-                    employeeManager();
-                });
+            const roleChoices = roleResults.map((row) => {
+                return {
+                    name: row.title,
+                    value: row.id
+                };
             });
+
+
+            inquirer.prompt([
+                {
+                    type: 'list',
+                    message: "Which employee's role do you want to update?",
+                    name: 'selectedEmployee',
+                    choices: employeeChoices
+                },
+                {
+                    type: 'list',
+                    message: 'Which role do you want to assign the selected employee?',
+                    name: 'newRoleId',
+                    choices: roleChoices
+                }
+            ])
+                .then((answers) => {
+                    const selectedEmployeeId = answers.selectedEmployee;
+                    const newRoleId = answers.newRoleId;
+
+
+
+                    db.query(`UPDATE employee SET role_id = ${newRoleId} WHERE id = ${selectedEmployeeId}`, function (err, updateResult) {
+                        if (err) {
+                            console.log(err);
+                        } else {
+                            console.log("Updated employee's role");
+                        }
+                        employeeManager();
+                    });
+                });
         });
     });
 }
@@ -198,12 +207,12 @@ function addRole() {
                 const salary = answers.salary;
                 const department = answers.departmentChoice;
 
-                db.query(`INSERT INTO role (title, salary, department) VALUES ('${roleName}', '${salary}',(SELECT id FROM department WHERE name = '${department}'))`, function (err, results) {
+                db.query(`INSERT INTO role (title, salary, department_id) VALUES ('${roleName}', '${salary}',(SELECT id FROM department WHERE name = '${department}'))`, function (err, results) {
                     if (err) {
                         console.log(err);
                     } else {
                         console.log(`Added ${roleName} to the database`);
-                    } 
+                    }
                     employeeManager();
                 })
             });
