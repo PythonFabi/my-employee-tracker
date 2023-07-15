@@ -107,9 +107,57 @@ function addEmployee() {
 }
 
 function updateEmployeeRole() {
-    
+    db.query('SELECT id, CONCAT(first_name, " ", last_name) AS employeeName FROM employee', function (err, employeeResults) {
+        if(err) {
+            console.log(err);
+            return;
+        }
 
+        const employeeChoices = employeeResults.map((row) => {
+            return {
+                name: row.employeeName,
+                value: row.id
+            };
+        });
+
+        inquirer.prompt([
+            {
+                type: 'list',
+                message: 'Select an employee to update their role:',
+                name: 'selectedEmployee', 
+                choices: employeeChoices
+            },
+            {
+                type: 'input',
+                message: 'Enter the new role title:',
+                name: 'newRoleTitle'
+            }
+        ])
+        .then((answers) => {
+            const selectedEmployeeId = answers.selectedEmployee;
+            const newRoleTitle = answers.newRoleTitle;
+
+            db.query(`SELECT id FROM role WHERE title = '${newRoleTitle}'`, function (err, roleResult) {
+                if (err) {
+                    console.log(err);
+                    return;
+                }
+
+                const newRoleId = roleResult[0].id;
+
+                db.query(`UPDATE employee SET role_id = ${newRoleId} WHERE id = ${selectedEmployeeId}`, function (err, updateResult) {
+                    if (err) {
+                        console.log(err);
+                    } else {
+                        console.log('Employee role updated successfully');
+                    }
+                    employeeManager();
+                });
+            });
+        });
+    });
 }
+
 function viewAllRoles() {
     db.query('SELECT r.id, r.title, d.name AS department, r.salary FROM department d JOIN role r ON d.id = r.department_id',
         function (err, results) {
@@ -155,7 +203,8 @@ function addRole() {
                         console.log(err);
                     } else {
                         console.log(`Added ${roleName} to the database`);
-                    } employeeManager();
+                    } 
+                    employeeManager();
                 })
             });
     });
