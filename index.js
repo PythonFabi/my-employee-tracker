@@ -16,7 +16,7 @@ const question = {
     type: 'list',
     message: 'What would you like to do?',
     name: 'action',
-    choices: ['View all Employees', 'Add Employee', 'Update Employee Role', 'View All Roles', 'Add Role', 'View All Departments', 'Add Department', 'Quit']
+    choices: ['View all Employees', 'Add Employee', 'Update Employee Role', 'View All Roles', 'Add Role', 'View All Departments', 'Add Department', 'Update Manager of Employee', 'View Employees by Manager', 'View Employees by Department', 'Quit']
 }
 
 
@@ -178,7 +178,6 @@ function viewAllRoles() {
         });
 }
 
-
 function addRole() {
     db.query('SELECT name FROM department', function (err, results) {
         if (err) {
@@ -247,9 +246,122 @@ function addDepartment() {
     });
 }
 
+function updateEmployeeManager() {
+    db.query('SELECT id, CONCAT(first_name, " ", last_name) AS employeeName FROM employee', function (err, employeeResults) {
+        if (err) {
+            console.log(err);
+            return;
+        }
 
+        const employeeChoices = employeeResults.map((row) => {
+            return {
+                name: row.employeeName, 
+                value: row.id
+            };
+        });
 
+        inquirer.prompt([
+            {
+                type: 'list',
+                message: "Which employee's manager do you want to update?",
+                name: 'selectedEmployee',
+                choices: employeeChoices
+            }, 
+            {
+                type: 'list',
+                message: "Which new manager would you like to choose for the employee?",
+                name: 'newManagerId',
+                choices: employeeChoices
+            }
+        ])
+          .then((answers) => {
+            const selectedEmployeeId = answers.selectedEmployee;
+            const newManagerId = answers.newManagerId;
 
+            db.query(`UPDATE employee SET manager_id = ${newManagerId} WHERE id = ${selectedEmployeeId}`, function (err, updateResult) {
+                if (err) {
+                    console.log(err);
+                } else {
+                    console.log(`Updated employee's manager`);
+                }
+
+                employeeManager();
+            });
+          });
+    });
+}
+
+function viewEmployeesByManager() {
+    db.query('SELECT DISTINCT m.id, CONCAT(m.first_name, " ", m.last_name) AS managerName FROM employee e JOIN employee m ON e.manager_id = m.id', function (err, managerResults) {
+        if(err) {
+            console.log(err);
+            return;
+        }
+
+        const managerChoices = managerResults.map((row) => {
+            return {
+                name: row.managerName,
+                value: row.id
+            };
+        });
+
+        inquirer.prompt([
+            {
+                type:'list',
+                message: 'Which manager would you like to view the employees from?',
+                name: 'selectedManager',
+                choices: managerChoices
+            }
+        ])
+          .then((answers) => {
+            const selectedManagerId = answers.selectedManager;
+
+            db.query(`SELECT e.id, e.first_name, e.last_name, r.title, d.name AS department, r.salary FROM employee e JOIN role r ON e.role_id = r.id JOIN department d ON r.department_id = d.id WHERE e.manager_id = ${selectedManagerId}`, function (err, results) {
+                if(err) {
+                    console.log(err);
+                } 
+                console.table(results);
+                employeeManager();
+            });
+          })
+    })
+}
+
+function viewEmployeesByDepartment() {
+    db.query('SELECT * FROM department', function (err, departmentResults) {
+        if (err) {
+            console.log(err);
+            return;
+        }
+
+        const departmentChoices = departmentResults.map((row) => {
+            return {
+                name: row.name,
+                value: row.id
+            };
+        });
+
+        inquirer.prompt([
+            {
+                type: 'list',
+                message: "Which department would you like to see its employees from?",
+                name: 'selectedDepartment',
+                choices: departmentChoices
+            }
+        ])
+          .then((answers) => {
+            const selectedDepartmentId = answers.selectedDepartment;
+
+            db.query(`SELECT e.id, e.first_name, e.last_name, r.title, d.name AS department, r.salary FROM employee e JOIN role r ON e.role_id = r.id JOIN department d ON r.department_id = d.id WHERE d.id = ${selectedDepartmentId}`, function (err, results) {
+                if(err) {
+                    console.log(err);
+                }
+                console.table(results);
+                employeeManager();
+            });
+          });
+    });
+}
 
 function employeeManager() {
     inquirer.prompt(question)
@@ -275,6 +387,15 @@ function employeeManager() {
                     break;
                 case 'Add Department':
                     addDepartment();
+                    break;
+                case 'Update Manager of Employee':
+                    updateEmployeeManager();
+                    break;
+                case 'View Employees by Manager':
+                    viewEmployeesByManager();
+                    break;
+                case 'View Employees by Department':
+                    viewEmployeesByDepartment();
                     break;
                 case 'Quit':
                     console.log('Exiting the employee manager...see you next time!');
