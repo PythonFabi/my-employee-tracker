@@ -15,11 +15,11 @@ If your README is long, add a table of contents to make it easy for users to fin
 
 ## Installation
 
-[Walkthrough Video](https://drive.google.com/file/d/1J8Eac3SRjXf4tKRDQbD1gBVwkK4TMqTl/view)
-
 Copy this project into your repository, initialize npm ('npm init -y') and install inquirer@8.2.4 for the prompts and mysql2 to run the querys. -->('npm i inquirer@8.2.4' & 'npm i mysql2')
 
 ## Usage
+
+[Walkthrough Video](https://drive.google.com/file/d/1J8Eac3SRjXf4tKRDQbD1gBVwkK4TMqTl/view)
 
 Run the application with 'node index.js' and choose one of the following options:
 
