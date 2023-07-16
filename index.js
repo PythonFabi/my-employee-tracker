@@ -59,7 +59,7 @@ function addEmployee() {
 
 
             // adds option of no manager
-            managerNames.unshift('No Manager');
+            managerNames.unshift('None');
             // let user input first and last name of new employee
             inquirer.prompt([{
                 type: 'input',
@@ -102,7 +102,7 @@ function addEmployee() {
                         let managerId = null;
 
                         // the same process for the employee, which will be stored as a manager in an id, the manager will be not null, if managerName is chosen
-                        if (managerName !== 'No Manager') {
+                        if (managerName !== 'None') {
                             db.query(`SELECT id FROM employee WHERE CONCAT(first_name, ' ', last_name) = '${managerName}'`, function (err, managerResult) {
                                 if (err) {
                                     console.log(err);
@@ -319,7 +319,7 @@ function updateEmployeeManager() {
         // the managerchoices spread in an array and with one more choice of No manager with the value null
         const managerChoices = [
             ...employeeChoices,
-            { name: 'No Manager', value: null },
+            { name: 'None', value: null },
         ];
 
         // let user choose employees and the new manager to assign to the employee
