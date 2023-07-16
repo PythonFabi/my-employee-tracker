@@ -18,7 +18,7 @@ const question = {
     type: 'list',
     message: 'What would you like to do?',
     name: 'action',
-    choices: ['View all Employees', 'Add Employee', 'Update Employee Role', 'View All Roles', 'Add Role', 'View All Departments', 'Add Department', 'Update Manager of Employee', 'View Employees by Manager', 'View Employees by Department', 'Delete Department', 'Delete Role', 'Delete Employee', 'View total budget of department', 'Quit']
+    choices: ['View all Employees', 'Add Employee', 'Update Employee Role', 'View all Roles', 'Add Role', 'View all Departments', 'Add Department', 'Update Manager of Employee', 'View Employees by Manager', 'View Employees by Department', 'Delete Department', 'Delete Role', 'Delete Employee', 'View total budget of department', 'Quit']
 }
 
 // view all the employees in the db
@@ -111,8 +111,8 @@ function addEmployee() {
 
                                 // this will store the managerId
                                 const managerId = managerResult[0].id;
-                            });
-                        }
+                            
+                        
 
 
 
@@ -127,6 +127,8 @@ function addEmployee() {
                             }
                             employeeManager();
                         });
+                    });
+                    };
                     });
 
                 });
@@ -610,13 +612,13 @@ function employeeManager() {
                 case 'Update Employee Role':
                     updateEmployeeRole();
                     break;
-                case 'View All Roles':
+                case 'View all Roles':
                     viewAllRoles();
                     break;
                 case 'Add Role':
                     addRole();
                     break;
-                case 'View All Departments':
+                case 'View all Departments':
                     viewAllDepartments();
                     break;
                 case 'Add Department':
